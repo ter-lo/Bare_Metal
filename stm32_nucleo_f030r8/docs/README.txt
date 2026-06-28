@@ -1,0 +1,131 @@
+* The Udemy course I followed for this repo is:
+* No Libraries used, Professional CMSIS Standard, 
+* ARM Cortex, ADC,UART,TIMERS, GPIO,SPI,I2C etc.
+* By: Israel Gbati
+* Mr. Gbati uses the NUCLEO-STM32F7 (I believe it's the ZI model) dev board
+* I on the other hand am using a NUCLEO-STM32F030R8 dev board
+* I have since ordered the NUCLEO-STM32F7 so I can follow more closely but 
+* I'm learning to read through a similar but vastly different documentation set
+* Data sheet can be downloaded here: https://www.st.com/en/evaluation-tools/nucleo-f030r8.html#documentation
+* User Manual: https://www.st.com/resource/en/user_manual/um1724-stm32-nucleo64-boards-mb1136-stmicroelectronics.pdf
+* Reference Manual: https://www.st.com/resource/en/reference_manual/rm0360-stm32f030x4x6x8xc-and-stm32f070x6xb-advanced-armbased-32bit-mcus-stmicroelectronics.pdf
+* I'll be highlighting definitions and really try to understand my board
+* entirily throughout this learning process, so you'll see questions I
+* leave for myself as I'm trying to mentally map out the build process.
+ 
+
+Definitions:
+SB = solder bridge
+Data Sheet    = features of the microchip
+User Guide    = refers to the Nucleo board (not the chip)
+Reference Man = refers to each register and each bit in
+                the microchip
+
+Perform data detection before beginning 
+a project. Figure out what pins and ports 
+you must access before coding.
+
+Ask, what do I want to connect to or
+use on the mcu? In this case I want to 
+access the LEDs, specifically the user LED (LD2).
+
+Memory map is located in the data sheet if something is not
+located in data sheet, check reference manual.
+
+Notes for program:
+
+Where is the LED connected:
+
+"
+User LD2: the green LED is a user LED connected to ARDUINO® signal D13 corresponding
+to STM32 I/O PA5 (pin 21) or PB13 (pin 34) depending on the STM32 target. Refer to
+Table 11 to Table 23 when:
+- the I/O is HIGH value, the LED is on
+- the I/O is LOW, the LED is off
+"
+SB Info:
+"
+SB21 (LD2-LED)
+- ON Green user LED LD2 is connected to D13 of ARDUINO® signal.
+- OFF Green user LED LD2 is not connected.
+"
+
+We want to access PA5 (Port A, Pin 5), PB13 is a different use case.
+
+Port and Pin I want to access for LD2 (USER Manual 7.6 pg. 24):
+-Pin    (what pin(s))   5
+-Port   (what port(s))  A
+
+How do we configure the Pin and the Port?
+
+Where does Port A reside (Data Sheet, Memory Mapping Figure 10 pg. 38)?
+
+In my case, wanting to access LD2 I want to access the Peripherals Bus
+beginning with APB 0x4000 0000 (THIS IS THE BASE), ending at AHB2 0x4800 17FF
+
+To gain control of LD2 I must access Port A which is located at GPIOA
+(General Purpose Input Output A) on Bus AHB2 with a boundry address of
+0x4800 0000 (BASE) - 0x4800 03FF
+
+#define PERIPH_BASE
+
+GPIOs are not registers, they are modules
+
+**Enabling clock access**
+
+Reset Clock Control (RCC):
+
+Reference manual, search memory map and find RCC on the AHB1 bus, this differs from the course because his RCC module is on the same bus as the port he's accessing. In my case GPIOA is located on AHB2 and RCC is located on AHB1
+
+#define RCC_OFFSET
+#define RCC_BASE
+
+Finding the Clock Enable Register (Reference Manual7.4.6 AHB peripheral clock enable register (RCC_AHBENR)
+
+Address offset: 0x14
+Reset value: 0x0000 0014
+Access: no wait state, word, half-word and byte access
+
+I'll target bit 17 (GPIOA) and bit 18 (GPIOB)
+
+Next I will target the MODER (GPIO Port Mode Register)
+
+8.4.1 GPIO port mode register (GPIOx_MODER)
+
+Address offset:0x00
+Reset value: 0x2800 0000 for port A
+Reset value: 0x0000 0000 for other ports
+
+I'm specifically targeting MODER5[1:0] bits 10 and 11
+
+Turn the LEDs into output registers by accessing:
+8.4.6 GPIO port output data register (GPIOx_ODR)
+
+It seems that the LED is not turning on. I think have something confused because GPIOA is on AHB2 Bus and RCC is the AHB1 Bus. The program builds though.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
