@@ -103,7 +103,11 @@ Turn the LEDs into output registers by accessing:
 
 It seems that the LED is not turning on. I think have something confused because GPIOA is on AHB2 Bus and RCC is the AHB1 Bus. The program builds though.
 
+Some of the bit math was mixed up. Going to work through the registers again to comfirm each bit matches the hardware location.
 
+ Issue: Incorrectly set RCC_OFFSET to 0x00021000UL
+ 
+ Solution:  Because AHB1_PERIPH_BASE is equal to 0x40020000 When adding to RCC_BASE while defining RCC_AHBENR originally equalled 40041000 (notice the rogue 4 on bit 4. I changed RCC_OFFSET to 0x1000UL allowing the 2 on bit 4 to stay.
 
 
 
