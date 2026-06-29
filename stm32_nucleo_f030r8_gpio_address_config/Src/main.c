@@ -18,15 +18,11 @@
 
 #define PERIPH_BASE			0x40000000UL
 
-/*
- * AHB1 to access RCC
- */
+/* AHB1 to access RCC */
 #define AHB1_OFFSET			0x00020000UL
 #define AHB1_PERIPH_BASE	PERIPH_BASE + AHB1_OFFSET		// 0x4002 0000
 
-/*
- * AHB2 to access GPIOA
- */
+/* AHB2 to access GPIOA */
 #define AHB2_OFFSET			0x08000000UL
 #define AHB2_PERIPH_BASE	PERIPH_BASE + AHB2_OFFSET		// 0x4800 0000
 #define GPIOA_BASE			AHB2_PERIPH_BASE				// 0x4800 0000
@@ -66,28 +62,30 @@
 
 #define USER_LED2			(1U<<5)
 
-/*
- * Write the execution
- */
+/* Write the execution */
 
 int main(void)
 {
-	/*
-	 * Enable clock access to port A
-	 */
+	/* Enable clock access to port A */
 	RCC_AHBENR |= GPIOA_CLK_EN;
 
-	/*
-	 * Configure LED Pin as output pins
-	 */
+	/* Configure LED Pin as output pins */
 	GPIOA_MODER |= USER_LED2_MODER;
 
-	/*
-	 * Turn on LED using a while loop
-	 */
+	/* Turn on LED using a while loop */
 	while(1)
 	{
-		GPIOA_ODR |= USER_LED2;
+		/* Turn on all LED (LD2) */
+		// GPIOA_ODR |= USER_LED2;
+
+		/* Toggle LED (LD2) using XOR ^
+		 * I'm targeting bit 5 therefore
+		 * XOR flips only bit 5 to produce
+		 * the toggle effect
+		 */
+		GPIOA_ODR ^= USER_LED2;
+		for(int i = 0; i < 1000000; i++){}
+
 	}
 
 
